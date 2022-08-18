@@ -1,0 +1,174 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="index.css" />
+  </head>
+
+  <body>
+    <div id="canvas"></div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.js"></script>
+    <script src="index.js"></script>
+    <script>
+      const unitLength = 20;
+      const boxColor = 150;
+      const strokeColor = 50;
+      let columns;
+      let rows;
+      let currentBoard;
+      let nextBoard;
+      function setup() {
+        frameRate(10);
+        const canvas = createCanvas(windowWidth, windowHeight - 100);
+        canvas.parent(document.querySelector("#canvas"));
+        columns = floor(width / unitLength);
+        rows = floor(height / unitLength);
+        currentBoard = [];
+        nextBoard = [];
+        for (let i = 0; i < columns; i++) {
+          currentBoard[i] = [];
+          nextBoard[i] = [];
+        }
+        init();
+      }
+      function init() {
+        for (let i = 0; i < columns; i++) {
+          for (let j = 0; j < rows; j++) {
+            currentBoard[i][j] = { color: [0, 0, 0] };
+            nextBoard[i][j] = { color: [0, 0, 0] };
+          }
+        }
+      }
+      function draw() {
+        background(0);
+        generate();
+        for (let i = 0; i < columns; i++) {
+          for (let j = 0; j < rows; j++) {
+            fill(
+              currentBoard[i][j].color[0],
+              currentBoard[i][j].color[1],
+              currentBoard[i][j].color[2]
+            );
+            squareColor = color(100, 50, 100);
+            squareColor.setAlpha(128 + 128 * sin(millis() / 1000));
+            squareColor.setRed(128 + 128 * sin(millis() / 1000) - i*1);
+            squareColor.setBlue(128 + 128 * cos(millis() / 1000) - i*2);
+            squareColor.setGreen(128 + 128 * tan(millis() / 1000) - i*3);
+            stroke(squareColor);
+            rect(i * unitLength, j * unitLength, unitLength, unitLength);
+          }
+        }
+      }
+      function generate() {
+        for (let x = 0; x < columns; x++) {
+          for (let y = 0; y < rows; y++) {
+            let neighbors = { red: 0, green: 0, blue: 0 };
+            for (let i of [-1, 0, 1]) {
+              for (let j of [-1, 0, 1]) {
+                if (i == 0 && j == 0) {
+                  continue;
+                }
+                nowBox =
+                  currentBoard[(x + i + columns) % columns][
+                    (y + j + rows) % rows
+                  ];
+                if (nowBox.color[0] == 255) {
+                  neighbors.red++;
+                }
+                if (nowBox.color[1] == 255) {
+                  neighbors.green++;
+                }
+                if (nowBox.color[2] == 255) {
+                  neighbors.blue++;
+                }
+              }
+            }
+            currentBox = currentBoard[x][y];
+            nextBox = nextBoard[x][y];
+            //red
+            if (currentBox.color[0] == 255 && neighbors.red < 2) {
+              nextBox.color[0] = 0;
+            } else if (currentBox.color[0] == 255 && neighbors.red > 3) {
+              nextBox.color[0] = 0;
+            } else if (currentBox.color[0] == 0 && neighbors.red == 3) {
+              nextBox.color[0] = 255;
+            } else {
+              nextBox.color[0] = currentBox.color[0];
+            }
+            //green
+            if (currentBox.color[1] == 255 && neighbors.green < 2) {
+              nextBox.color[1] = 0;
+            } else if (currentBox.color[1] == 255 && neighbors.green > 3) {
+              nextBox.color[1] = 0;
+            } else if (currentBox.color[1] == 0 && neighbors.green == 3) {
+              nextBox.color[1] = 255;
+            } else {
+              nextBox.color[1] = currentBox.color[1];
+            }
+            //blue
+            if (currentBox.color[2] == 255 && neighbors.blue < 2) {
+              nextBox.color[2] = 0;
+            } else if (currentBox.color[2] == 255 && neighbors.blue > 3) {
+              nextBox.color[2] = 0;
+            } else if (currentBox.color[2] == 0 && neighbors.blue == 3) {
+              nextBox.color[2] = 255;
+            } else {
+              nextBox.color[2] = currentBox.color[2];
+            }
+          }
+        }
+        [currentBoard, nextBoard] = [nextBoard, currentBoard];
+      }
+      function randomColor() {
+        if (Math.random() < 0.5) {
+          return 255;
+        }
+        if (Math.random() < 0.5) {
+          return 0;
+        }
+      }
+      function mouseDragged() {
+        if (mouseX > unitLength * columns || mouseY > unitLength * rows) {
+          return;
+        }
+        const x = Math.floor(mouseX / unitLength);
+        const y = Math.floor(mouseY / unitLength);
+
+        genColorRed = randomColor();
+        genColorGreen = randomColor();
+        genColorBlue = randomColor();
+        currentBoard[x][y].color[0] = genColorRed;
+        currentBoard[x][y].color[1] = genColorGreen;
+        currentBoard[x][y].color[2] = genColorBlue;
+        fill(
+          currentBoard[x][y].color[0],
+          currentBoard[x][y].color[1],
+          currentBoard[x][y].color[2]
+        );
+        stroke(strokeColor);
+        rect(x * unitLength, y * unitLength, unitLength, unitLength);
+      }
+      function mousePressed() {
+        noLoop();
+        mouseDragged();
+      }
+      function mouseReleased() {
+        loop();
+      }
+    </script>
+  </body>
+</html>

@@ -58,7 +58,9 @@
         generate();
         for (let i = 0; i < columns; i++) {
           for (let j = 0; j < rows; j++) {
-            if (currentBoard[i][j].life == 1) {
+            if (currentBoard[i][j].count > 2) {
+              fill(0);
+            } else if (currentBoard[i][j].life == 1) {
               fill(boxColor);
             } else {
               fill(255);
@@ -84,13 +86,16 @@
               }
             }
             if (currentBoard[x][y].life == 1 && neighbors < 2) {
-              nextBoard[x][y].life = 0;
+              nextBoard[x][y] = { life: 0, count: 0 };
             } else if (currentBoard[x][y].life == 1 && neighbors > 3) {
-              nextBoard[x][y].life = 0;
+              nextBoard[x][y] = { life: 0, count: 0 };
             } else if (currentBoard[x][y].life == 0 && neighbors == 3) {
-              nextBoard[x][y].life = 1;
+              nextBoard[x][y] = { life: 1, count: 0 };
+            } else if (currentBoard[x][y].life == 0) {
+              nextBoard[x][y] = { life: 0, count: 0 };
             } else {
-              nextBoard[x][y].life = currentBoard[x][y].life;
+              nextBoard[x][y].life = 1;
+              nextBoard[x][y].count++;
             }
           }
         }

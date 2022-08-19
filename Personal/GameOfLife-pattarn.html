@@ -45,6 +45,7 @@
         }
         init();
       }
+
       function init() {
         for (let i = 0; i < columns; i++) {
           for (let j = 0; j < rows; j++) {
@@ -54,6 +55,7 @@
         }
       }
       function draw() {
+        console.log(frameCount);
         background(boxColor);
         generate();
         colorTime = millis();
@@ -175,7 +177,6 @@
             if (i == 0 && j == 0) {
               continue;
             }
-            console.log(x + i, y + j);
             rect(
               (x + i) * unitLength,
               (y + j) * unitLength,
@@ -201,11 +202,11 @@
             currentBoard[i] = [];
             nextBoard[i] = [];
           }
-        }
-        for (let j = 0; j < rows; j++) {
-          if (currentBoard[i][j] === undefined) {
-            currentBoard[i][j] = { color: [0, 0, 0] };
-            nextBoard[i][j] = { color: [0, 0, 0] };
+          for (let j = 0; j < rows; j++) {
+            if (currentBoard[i][j] === undefined) {
+              currentBoard[i][j] = { color: [0, 0, 0] };
+              nextBoard[i][j] = { color: [0, 0, 0] };
+            }
           }
         }
       }

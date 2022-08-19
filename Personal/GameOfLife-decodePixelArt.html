@@ -1,0 +1,149 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="index.css" />
+  </head>
+
+  <body>
+    <div id="canvas"></div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.js"></script>
+    <script src="index.js"></script>
+    <script>
+      const unitLength = 20;
+      const boxColor = 150;
+      const strokeColor = 50;
+      let columns;
+      let rows;
+      let currentBoard;
+      let nextBoard;
+      let img;
+
+      function setup() {
+        frameRate(1);
+        const canvas = createCanvas(640, 640);
+        canvas.parent(document.querySelector("#canvas"));
+        columns = floor(width / unitLength);
+        rows = floor(height / unitLength);
+        currentBoard = [];
+        nextBoard = [];
+        colorEva = [];
+        for (let i = 0; i < columns; i++) {
+          currentBoard[i] = [];
+          nextBoard[i] = [];
+          colorEva[i] = [];
+        }
+        img = loadImage(
+          "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/a68164ee-df6a-4410-a764-01d7003245de/dbaunty-dd134163-13ca-405f-9fe0-d75e412268e1.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcL2E2ODE2NGVlLWRmNmEtNDQxMC1hNzY0LTAxZDcwMDMyNDVkZVwvZGJhdW50eS1kZDEzNDE2My0xM2NhLTQwNWYtOWZlMC1kNzVlNDEyMjY4ZTEucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.eR52CtK_3jywSI_55Xkdec-l9ZZ-cPCLuCnZQhG-a5Q"
+        );
+        init();
+      }
+      function windowResized() {
+        resizeCanvas(windowWidth - 100, windowHeight - 100);
+        columns = floor(width / unitLength);
+        rows = floor(height / unitLength);
+        for (let i = 0; i < columns; i++) {
+          if (currentBoard[i] === undefined) {
+            currentBoard[i] = [];
+            nextBoard[i] = [];
+          }
+          for (let j = 0; j < rows; j++) {
+            if (currentBoard[i][j] === undefined) {
+              currentBoard[i][j] = 0;
+              nextBoard[i][j] = 0;
+            }
+          }
+        }
+      }
+      function init() {
+        for (let i = 0; i < columns; i++) {
+          for (let j = 0; j < rows; j++) {
+            currentBoard[i][j] = 0;
+            nextBoard[i][j] = 0;
+            colorEva[i][j] = [];
+          }
+        }
+      }
+      function draw() {
+        background(255);
+        image(img, 0, 0, 640, 640);
+        generate();
+        for (let i = 0; i < columns; i++) {
+          for (let j = 0; j < rows; j++) {
+            if (currentBoard[i][j] == 1) {
+              fill(boxColor);
+            } else {
+              fill(255, 255, 255, 0);
+            }
+            stroke(strokeColor);
+            rect(i * unitLength, j * unitLength, unitLength, unitLength);
+            testchkcolor = get(i * unitLength + 10, j * unitLength + 10);
+            colorEva[i][j] = testchkcolor;
+          }
+        }
+      }
+
+      function generate() {
+        for (let x = 0; x < columns; x++) {
+          for (let y = 0; y < rows; y++) {
+            let neighbors = 0;
+            for (let i of [-1, 0, 1]) {
+              for (let j of [-1, 0, 1]) {
+                if (i == 0 && j == 0) {
+                  continue;
+                }
+                neighbors +=
+                  currentBoard[(x + i + columns) % columns][
+                    (y + j + rows) % rows
+                  ];
+              }
+            }
+            if (currentBoard[x][y] == 1 && neighbors < 2) {
+              nextBoard[x][y] = 0;
+            } else if (currentBoard[x][y] == 1 && neighbors > 3) {
+              nextBoard[x][y] = 0;
+            } else if (currentBoard[x][y] == 0 && neighbors == 3) {
+              nextBoard[x][y] = 1;
+            } else {
+              nextBoard[x][y] = currentBoard[x][y];
+            }
+          }
+        }
+        [currentBoard, nextBoard] = [nextBoard, currentBoard];
+      }
+      function mouseDragged() {
+        if (mouseX > unitLength * columns || mouseY > unitLength * rows) {
+          return;
+        }
+        const x = Math.floor(mouseX / unitLength);
+        const y = Math.floor(mouseY / unitLength);
+        currentBoard[x][y] = 1;
+        fill(boxColor);
+        stroke(strokeColor);
+        rect(x * unitLength, y * unitLength, unitLength, unitLength);
+      }
+      function mousePressed() {
+        noLoop();
+        mouseDragged();
+      }
+      function mouseReleased() {
+        loop();
+        console.log(colorEva);
+      }
+    </script>
+  </body>
+</html>

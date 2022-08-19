@@ -58,8 +58,7 @@
         generate();
         colorTime = millis();
         SpectrumControl = 20;
-        console.log(frameRate());
-        let speeder = 2;
+        let speeder = 1;
         for (let i = 0; i < columns; i++) {
           for (let j = 0; j < rows; j++) {
             thisColor = [
@@ -137,6 +136,17 @@
         }
         [currentBoard, nextBoard] = [nextBoard, currentBoard];
       }
+      function chkRule(chkBox, chkNextBox, RGB, neighborsNumber) {
+        if (chkBox == 1 && neighborsNumber < 2) {
+          chkNextBox = 0;
+        } else if (chkBox == 1 && neighborsNumber > 3) {
+          chkNextBox = 0;
+        } else if (chkBox == 0 && neighborsNumber == 3) {
+          chkNextBox = 1;
+        } else {
+          chkNextBox = chkBox;
+        }
+      }
       function randomColor() {
         if (Math.random() < 0.5) {
           return 255;
@@ -158,13 +168,22 @@
         currentBoard[x][y].color[0] = genColorRed;
         currentBoard[x][y].color[1] = genColorGreen;
         currentBoard[x][y].color[2] = genColorBlue;
-        fill(
-          currentBoard[x][y].color[0],
-          currentBoard[x][y].color[1],
-          currentBoard[x][y].color[2]
-        );
+        fill(currentBoard[x][y].color);
         stroke(strokeColor);
-        rect(x * unitLength, y * unitLength, unitLength, unitLength);
+        for (let i of [-1, 0, 1]) {
+          for (let j of [-1, 0, 1]) {
+            if (i == 0 && j == 0) {
+              continue;
+            }
+            console.log(x + i, y + j);
+            rect(
+              (x + i) * unitLength,
+              (y + j) * unitLength,
+              unitLength,
+              unitLength
+            );
+          }
+        }
       }
       function mousePressed() {
         noLoop();
@@ -172,6 +191,23 @@
       }
       function mouseReleased() {
         loop();
+      }
+      function windowResized() {
+        resizeCanvas(windowWidth - 100, windowHeight - 100);
+        columns = floor(width / unitLength);
+        rows = floor(height / unitLength);
+        for (let i = 0; i < columns; i++) {
+          if (currentBoard[i] === undefined) {
+            currentBoard[i] = [];
+            nextBoard[i] = [];
+          }
+        }
+        for (let j = 0; j < rows; j++) {
+          if (currentBoard[i][j] === undefined) {
+            currentBoard[i][j] = { color: [0, 0, 0] };
+            nextBoard[i][j] = { color: [0, 0, 0] };
+          }
+        }
       }
     </script>
   </body>

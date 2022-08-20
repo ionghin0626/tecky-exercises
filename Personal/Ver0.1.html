@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>GameOfLife Ver0.1</title>
+</head>
+
+<style>
+/* div .div {
+    background-color: black;
+} */
+
+body {
+    /* background-color: black; */
+}
+
+.container#firstContainer {
+    /* padding: 0.5rem; */
+    padding-top: 0.5rem;
+    /* background-color: black; */
+    /* height: 100vh; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.col {
+    padding: 0.5rem;
+}
+.row {
+    padding: 0.5rem;
+}
+
+</style>
+
+<body class="bg-dark">
+    <div class="container bg-dark" id="firstContainer">
+        <div id='canvas'></div>
+    </div>
+    <div class="container text-center" id="secContainer">
+        <div class="row-lg align-items-start">
+            <div class="col bg-dark">
+                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="startButton">start</a>
+            </div>
+            <div class="col bg-dark">
+                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="pauseButton">pause</a>
+            </div>
+            <div class="col bg-dark">
+                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="nextButton">next</a>
+            </div>
+            <div class="col bg-dark">
+                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="resetButton">reset</a>
+            </div>
+            <div class="col bg-dark">
+                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="clearButton">clear</a>
+            </div>
+            <div class="col bg-dark">
+                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="switchThemeButton">theme</a>
+            </div>
+        </div>
+        <div class="row align-items-start">
+            <div class="col bg-dark">
+                <label for="customRange3" class="form-label">speed</label>
+<input type="range" class="form-range" min="0" max="5" step="0.5" id="customRange3">
+            </div>
+            <div class="col bg-dark">
+                <select class="form-select" aria-label="Default select example">
+                    <option selected>DIE</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
+            </div>
+            <div class="col bg-dark">
+                <select class="form-select" aria-label="Default select example">
+                    <option selected>born</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
+            </div>
+            <div class="col bg-dark">
+                <select class="form-select" aria-label="Default select example">
+                    <option selected>???</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+        
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.js"></script>
+    <script>
+        let unitLength;
+        let margin;
+        const boxColor = 200;
+        const strokeColor = 50;
+        let columns;
+        let rows;
+        let currentBoard;
+        let nextBoard;
+        let startGame;
+
+        function setup() {
+            CalCanvasWidth()
+            const canvas = createCanvas(setWidth, setHeight);
+            canvas.parent(document.querySelector('#canvas'));
+
+            columns = floor(width / unitLength);
+            rows = floor(height / unitLength);
+
+            currentBoard = [];
+            nextBoard = [];
+            for (let i = 0; i < columns; i++) {
+                currentBoard[i] = [];
+                nextBoard[i] = []
+            }
+
+
+            frameRate(15);
+            init(set);
+        }
+
+        function CalCanvasWidth() {
+            if (windowWidth<768) {
+                unitLength = (windowWidth - 25)/25
+                setWidth = unitLength*25
+                setHeight = unitLength*40
+            } else {
+                unitLength = 15
+                // setWidth = unitLength*floor((windowWidth - 200)/unitLength)
+                setHeight = unitLength*floor((windowHeight - 200)/unitLength)
+                setWidth = setHeight
+            }
+        }
+
+        function init(type) {
+            for (let i = 0; i < columns; i++) {
+                for (let j = 0; j < rows; j++) {
+                    // currentBoard[i][j] = 0;
+                    // nextBoard[i][j] = 0;
+                    // intCount = round(random(10));
+                    if (type == set) {
+                        intLife = random() > 0.8 ? 1 : 0;
+                    } else {
+                        intLife = 0
+                    }
+                    
+                    currentBoard[i][j] = {life: intLife, count:0};
+                    nextBoard[i][j] = {life: intLife, count:0};
+                }
+            }
+        }
+
+        function draw() {
+            background(0);
+            generate();
+            let spectrumColor;
+            let speeder = 1;
+            for (let i = 0; i < columns; i++) {
+                for (let j = 0; j < rows; j++) {
+                    //https://p5js.org/reference/#/p5/color
+                    spectrumColor = [
+                        Math.abs(128 - ((frameCount * speeder + i + j + 170) % 255)),
+                        Math.abs(128 - ((frameCount * speeder - i - j + 85) % 255)),
+                        Math.abs(128 - ((frameCount * speeder - i + j + 170) % 255)),
+                        // Math.abs(128 - ((frameCount + i - j) % 255)),
+                    ];
+                    if (currentBoard[i][j].count > 1) {
+                        fill(boxColor - currentBoard[i][j].count * 20);
+                        } else if (currentBoard[i][j].life == 1) {
+                            fill(boxColor)
+                        } else {
+                            fill(spectrumColor);
+                    }
+                    // if (currentBoard[i][j].count > 1) {
+                    //     fill(boxColor - currentBoard[i][j].count * 20);
+                    //     } else if (currentBoard[i][j].life == 1) {
+                    //     fill(boxColor);
+                    //     } else {
+                    //     fill(spectrumColor);
+                    // }
+                    stroke(strokeColor);
+                    rect(i * unitLength, j * unitLength, unitLength, unitLength);
+                }
+            }
+        }
+
+        function generate() {
+            for (let x = 0; x < columns; x++) {
+                for (let y = 0; y < rows; y++) {
+                    let neighbors = 0;
+                    for (let i of [-1, 0, 1]) {
+                        for (let j of [-1, 0, 1]) {
+                            if (i == 0 && j == 0) {
+                                continue;
+                            }
+                            neighbors +=
+                                currentBoard[(x + i + columns) % columns][
+                                    (y + j + rows) % rows
+                                ].life;
+                        }
+                    }
+
+                    // Rules of Life
+                    if (currentBoard[x][y].life == 1 && neighbors < 2) {
+                        nextBoard[x][y] = { life: 0, count: 0 };
+                        } else if (currentBoard[x][y].life == 1 && neighbors > 3) {
+                        nextBoard[x][y] = { life: 0, count: 0 };
+                        } else if (currentBoard[x][y].life == 0 && neighbors == 3) {
+                        nextBoard[x][y] = { life: 1, count: 0 };
+                        } else if (currentBoard[x][y].life == 0) {
+                        nextBoard[x][y] = { life: 0, count: 0 };
+                        } else {
+                        nextBoard[x][y].life = 1;
+                        nextBoard[x][y].count++;
+                    }
+                }
+            }
+
+            [currentBoard, nextBoard] = [nextBoard, currentBoard];
+        }
+
+        function mouseDragged() {
+
+            if (mouseX > unitLength * columns || mouseY > unitLength * rows) {
+                return;
+            }
+            const x = Math.floor(mouseX / unitLength);
+            const y = Math.floor(mouseY / unitLength);
+            currentBoard[x][y] = { life: 1, count: 0 };
+            fill(boxColor);
+            stroke(strokeColor);
+            rect(x * unitLength, y * unitLength, unitLength, unitLength);
+        }
+
+        function mousePressed() {
+            if (mouseX > unitLength * columns || mouseY > unitLength * rows) {
+                return;
+            }
+            noLoop();
+            mouseDragged();
+        }
+
+        function mouseReleased() {
+            if (mouseX > unitLength * columns || mouseY > unitLength * rows) {
+                return;
+            }
+        }
+
+
+    </script>
+    <script>
+        firstContainer = document.querySelector("firstContainer")
+
+        startButton = document.querySelector('#startButton').addEventListener('click', function(){loop()})
+
+        pauseButton = document.querySelector('#pauseButton').addEventListener('click', function(){noLoop()})
+
+        nextButton = document.querySelector('#nextButton').addEventListener('click', function(){noLoop();draw()})
+
+        nextButton = document.querySelector('#clearButton').addEventListener('click', function(){noLoop();init(clear)})
+
+        nextButton = document.querySelector('#resetButton').addEventListener('click', function(){init(set);loop()})
+
+        switchThemeButton = document.querySelector('#switchThemeButton')
+    </script>
+</body>
+
+</html>

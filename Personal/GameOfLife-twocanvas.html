@@ -16,6 +16,8 @@
 
   <body>
     <div id="canvas"></div>
+    <div id="canvastwo"></div>
+
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
@@ -31,61 +33,61 @@
       let rows;
       let currentBoard;
       let nextBoard;
-      let img;
-
       function setup() {
-        frameRate(1);
-        const canvas = createCanvas(300, 240);
+        frameRate(10);
+        const canvas = createCanvas(windowWidth - 200, windowHeight - 200);
         canvas.parent(document.querySelector("#canvas"));
+
         columns = floor(width / unitLength);
         rows = floor(height / unitLength);
         currentBoard = [];
         nextBoard = [];
-        colorEva = [];
         for (let i = 0; i < columns; i++) {
           currentBoard[i] = [];
           nextBoard[i] = [];
-          colorEva[i] = [];
         }
-        img = loadImage(
-          "https://i.postimg.cc/SKcGvCZL/First-copperhead.jpg"
-        );
         init();
       }
-
+      function windowResized() {
+        resizeCanvas(windowWidth - 100, windowHeight - 100);
+        columns = floor(width / unitLength);
+        rows = floor(height / unitLength);
+        for (let i = 0; i < columns; i++) {
+          if (currentBoard[i] === undefined) {
+            currentBoard[i] = [];
+            nextBoard[i] = [];
+          }
+          for (let j = 0; j < rows; j++) {
+            if (currentBoard[i][j] === undefined) {
+              currentBoard[i][j] = 0;
+              nextBoard[i][j] = 0;
+            }
+          }
+        }
+      }
       function init() {
         for (let i = 0; i < columns; i++) {
           for (let j = 0; j < rows; j++) {
             currentBoard[i][j] = 0;
             nextBoard[i][j] = 0;
-            colorEva[i][j] = [];
           }
         }
       }
       function draw() {
         background(255);
-        image(img, 0, 0,300,240);
         generate();
         for (let i = 0; i < columns; i++) {
           for (let j = 0; j < rows; j++) {
             if (currentBoard[i][j] == 1) {
               fill(boxColor);
             } else {
-              fill(255, 255, 255, 0);
+              fill(255);
             }
             stroke(strokeColor);
             rect(i * unitLength, j * unitLength, unitLength, unitLength);
-            testchkcolor = get(i * unitLength + 10, j * unitLength + 10);
-            colorEva[i][j] = testchkcolor;
-            if (colorEva[i][j][0] < 200) {
-              colorEva[i][j] = {life:1}
-            } else {
-              colorEva[i][j] = {life:0}
-            }
           }
         }
       }
-
       function generate() {
         for (let x = 0; x < columns; x++) {
           for (let y = 0; y < rows; y++) {
@@ -131,9 +133,7 @@
       }
       function mouseReleased() {
         loop();
-        console.log(colorEva);
       }
     </script>
   </body>
 </html>
-

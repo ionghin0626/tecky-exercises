@@ -24,7 +24,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/p5.js"></script>
     <script src="index.js"></script>
     <script>
-      const unitLength = 20;
+      const unitLength = 12;
       const boxColor = 150;
       const strokeColor = 50;
       let columns;
@@ -35,7 +35,7 @@
 
       function setup() {
         frameRate(1);
-        const canvas = createCanvas(300, 240);
+        const canvas = createCanvas(158*2, 169*2);
         canvas.parent(document.querySelector("#canvas"));
         columns = floor(width / unitLength);
         rows = floor(height / unitLength);
@@ -48,7 +48,7 @@
           colorEva[i] = [];
         }
         img = loadImage(
-          "https://i.postimg.cc/SKcGvCZL/First-copperhead.jpg"
+          "https://i.postimg.cc/ZqCVkVcN/angle.jpg"
         );
         init();
       }
@@ -64,7 +64,7 @@
       }
       function draw() {
         background(255);
-        image(img, 0, 0,300,240);
+        image(img, 0, 0,158*2,169*2);
         generate();
         for (let i = 0; i < columns; i++) {
           for (let j = 0; j < rows; j++) {
@@ -77,11 +77,7 @@
             rect(i * unitLength, j * unitLength, unitLength, unitLength);
             testchkcolor = get(i * unitLength + 10, j * unitLength + 10);
             colorEva[i][j] = testchkcolor;
-            if (colorEva[i][j][0] < 200) {
-              colorEva[i][j] = {life:1}
-            } else {
-              colorEva[i][j] = {life:0}
-            }
+
           }
         }
       }

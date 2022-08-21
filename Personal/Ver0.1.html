@@ -11,13 +11,11 @@
 </head>
 
 <style>
-/* div .div {
-    background-color: black;
-} */
 
-body {
-    /* background-color: black; */
-}
+/* @font-face {
+  font-family: "SoukouMincho";
+  src: url("./SoukouMincho.ttf") format("truetype")
+} */
 
 .container#firstContainer {
     /* padding: 0.5rem; */
@@ -27,6 +25,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+
 }
 .col {
     padding: 0.5rem;
@@ -34,40 +33,50 @@ body {
 .row {
     padding: 0.5rem;
 }
+/* .testFonts {
+    font-family: soukouMincho;
+    font-size: 5rem;
+    font-weight: 900;
+} */
+.btn {
+    margin: 0.2rem;
+}
 
 </style>
 
 <body class="bg-dark">
+    <!-- <div class="testFonts">使徒襲來</div> -->
     <div class="container bg-dark" id="firstContainer">
         <div id='canvas'></div>
     </div>
     <div class="container text-center" id="secContainer">
-        <div class="row-lg align-items-start">
-            <div class="col bg-dark">
-                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="startButton">start</a>
+        <div class="row align-items-start">
+            <div class="col-md bg-dark">
             </div>
-            <div class="col bg-dark">
-                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="pauseButton">pause</a>
+            <div class="col-md bg-dark">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button class="btn btn-secondary" role="button" id="startButton">start</a>
+                    <button class="btn btn-secondary" role="button" id="pauseButton">pause</a>
+                    <button class="btn btn-secondary" role="button" id="nextButton">next</a>
+                    <button class="btn btn-secondary" role="button" id="resetButton">reset</a>
+                    <button class="btn btn-secondary" role="button" id="clearButton">clear</a>
+                </div>
             </div>
-            <div class="col bg-dark">
-                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="nextButton">next</a>
+            <div class="col-md bg-dark">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button class="btn btn-secondary" role="button" data-bs-toggle="button" id="switchThemeButton">dark theme</a>
+                    <button class="btn btn-light" role="button" data-bs-toggle="button" id="switchThemeButton">Light theme</a>
+                </div>
             </div>
-            <div class="col bg-dark">
-                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="resetButton">reset</a>
-            </div>
-            <div class="col bg-dark">
-                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="clearButton">clear</a>
-            </div>
-            <div class="col bg-dark">
-                <button class="btn btn-primary" role="button" data-bs-toggle="button" id="switchThemeButton">theme</a>
+            <div class="col-md bg-dark">
             </div>
         </div>
         <div class="row align-items-start">
-            <div class="col bg-dark">
+            <div class="col-md bg-dark">
                 <label for="customRange3" class="form-label">speed</label>
-<input type="range" class="form-range" min="0" max="5" step="0.5" id="customRange3">
+                <input type="range" class="form-range" min="0" max="5" step="0.5" id="customRange3">
             </div>
-            <div class="col bg-dark">
+            <div class="col-md bg-dark">
                 <select class="form-select" aria-label="Default select example">
                     <option selected>DIE</option>
                     <option value="1">One</option>
@@ -75,7 +84,7 @@ body {
                     <option value="3">Three</option>
                 </select>
             </div>
-            <div class="col bg-dark">
+            <div class="col-md bg-dark">
                 <select class="form-select" aria-label="Default select example">
                     <option selected>born</option>
                     <option value="1">One</option>
@@ -83,7 +92,7 @@ body {
                     <option value="3">Three</option>
                 </select>
             </div>
-            <div class="col bg-dark">
+            <div class="col-md bg-dark">
                 <select class="form-select" aria-label="Default select example">
                     <option selected>???</option>
                     <option value="1">One</option>
@@ -126,8 +135,6 @@ body {
                 currentBoard[i] = [];
                 nextBoard[i] = []
             }
-
-
             frameRate(15);
             init(set);
         }
@@ -136,15 +143,32 @@ body {
             if (windowWidth<768) {
                 unitLength = (windowWidth)/25
                 setWidth = unitLength*25
-                setHeight = unitLength*40
+                setHeight = setWidth
             } else {
                 unitLength = 15
-                // setWidth = unitLength*floor((windowWidth - 200)/unitLength)
+                setWidth = unitLength*floor((windowWidth - 200)/unitLength)
                 setHeight = unitLength*floor((windowHeight - 200)/unitLength)
-                setWidth = setHeight
+                // setWidth = setHeight
             }
         }
-
+        function windowResized() {
+            CalCanvasWidth()
+            resizeCanvas(setWidth, setHeight);
+            columns = floor(width / unitLength);
+            rows = floor(height / unitLength);
+            for (let i = 0; i < columns; i++) {
+            if (currentBoard[i] === undefined) {
+                currentBoard[i] = [];
+                nextBoard[i] = [];
+            }
+            for (let j = 0; j < rows; j++) {
+                if (currentBoard[i][j] === undefined) {
+                currentBoard[i][j] = {life: intLife, count:0};
+                nextBoard[i][j] = {life: intLife, count:0};
+                }
+            }
+            }
+        }
         function init(type) {
             for (let i = 0; i < columns; i++) {
                 for (let j = 0; j < rows; j++) {
@@ -234,7 +258,7 @@ body {
 
         function mouseDragged() {
 
-            if (mouseX > unitLength * columns || mouseY > unitLength * rows) {
+            if (mouseX > unitLength * columns || mouseY > unitLength * rows || mouseButton === RIGHT) {
                 return;
             }
             const x = Math.floor(mouseX / unitLength);
@@ -246,7 +270,7 @@ body {
         }
 
         function mousePressed() {
-            if (mouseX > unitLength * columns || mouseY > unitLength * rows) {
+            if (mouseX > unitLength * columns || mouseY > unitLength * rows || mouseButton === RIGHT) {
                 return;
             }
             noLoop();
@@ -270,11 +294,19 @@ body {
 
         nextButton = document.querySelector('#nextButton').addEventListener('click', function(){noLoop();draw()})
 
-        nextButton = document.querySelector('#clearButton').addEventListener('click', function(){noLoop();init(clear)})
-
         nextButton = document.querySelector('#resetButton').addEventListener('click', function(){init(set);loop()})
 
+        nextButton = document.querySelector('#clearButton').addEventListener('click', function(){init(clear);loop()})
+
         switchThemeButton = document.querySelector('#switchThemeButton')
+    </script>
+    <script>
+        console.log(
+            '%c使徒襲來','background-color: #c20f0f;color:#f58d39;padding:0.5rem 1rem;font-size:5rem;font-weight: 900;'
+            );
+        console.log(
+            '%c消滅敵機進入第三東京市', 'background-color: #60289b;color:#b8e84c;padding:0.5rem;font-size:2rem;font-weight: 900;'
+            );
     </script>
 </body>
 

@@ -25,14 +25,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
 }
 .col {
     padding: 0.5rem;
 }
-.row {
-    padding: 0.5rem;
-}
+
 /* .testFonts {
     font-family: soukouMincho;
     font-size: 5rem;
@@ -42,63 +39,55 @@
     margin: 0.2rem;
 }
 
+
 </style>
 
 <body class="bg-dark">
     <!-- <div class="testFonts">使徒襲來</div> -->
-    <div class="container bg-dark" id="firstContainer">
+    <div class="container" id="firstContainer">
         <div id='canvas'></div>
     </div>
     <div class="container text-center" id="secContainer">
-        <div class="row align-items-start">
-            <div class="col-md bg-dark">
+        <div class="row">
+            <div class="col-md">
             </div>
-            <div class="col-md bg-dark">
+            <div class="col-md">
                 <div class="btn-group" role="group" aria-label="Basic example">
-                    <button class="btn btn-secondary" role="button" id="startButton">start</a>
-                    <button class="btn btn-secondary" role="button" id="pauseButton">pause</a>
-                    <button class="btn btn-secondary" role="button" id="nextButton">next</a>
-                    <button class="btn btn-secondary" role="button" id="resetButton">reset</a>
-                    <button class="btn btn-secondary" role="button" id="clearButton">clear</a>
+                    <button class="btn btn-secondary theme" role="button" id="startButton">Start</a>
+                    <button class="btn btn-secondary theme" role="button" id="pauseButton">Pause</a>
+                    <button class="btn btn-secondary theme" role="button" id="nextButton">Step</a>
+                    <button class="btn btn-secondary theme" role="button" id="resetButton">Reset</a>
+                    <button class="btn btn-secondary theme" role="button" id="clearButton">Clear</a>
                 </div>
             </div>
-            <div class="col-md bg-dark">
+            <div class="col-md">
                 <div class="btn-group" role="group" aria-label="Basic example">
-                    <button class="btn btn-secondary" role="button" data-bs-toggle="button" id="switchThemeButton">dark theme</a>
-                    <button class="btn btn-light" role="button" data-bs-toggle="button" id="switchThemeButton">Light theme</a>
+                    <button class="btn btn-secondary" role="button" id="darkTheme">dark theme</a>
+                    <button class="btn btn-outline-secondary bg-light" role="button" id="lightTheme">Light theme</a>
                 </div>
             </div>
-            <div class="col-md bg-dark">
+            <div class="col-md">
             </div>
         </div>
-        <div class="row align-items-start">
-            <div class="col-md bg-dark">
-                <label for="customRange3" class="form-label">speed</label>
-                <input type="range" class="form-range" min="0" max="5" step="0.5" id="customRange3">
+        <div class="row p-1">
+            <div class="col-md text-bg-secondary slider">
+                <label for="speed" class="form-label text-light m-0 speedSlider">Speed: 15fps</label>
+                <input type="range" class="form-range" min="0" max="60" value="15" step="5" id="speedSlider">
             </div>
-            <div class="col-md bg-dark">
-                <select class="form-select" aria-label="Default select example">
-                    <option selected>DIE</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
+
+            <div class="col-md text-bg-secondary slider">
+                <label for="dieLoneliness" class="form-label text-light m-0 dieLonelinessSlider">dieLoneliness: 2 neighbors</label>
+                <input type="range" class="form-range" min="0" max="8" value="2" step="1" id="dieLoneliness">
             </div>
-            <div class="col-md bg-dark">
-                <select class="form-select" aria-label="Default select example">
-                    <option selected>born</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
+
+            <div class="col-md text-bg-secondary slider">
+                <label for="dieOverpopulation" class="form-label text-light m-0 dieOverpopulationSlider">dieOverpopulation: 3 neighbors</label>
+                <input type="range" class="form-range" min="0" max="8" value="3" step="1" id="dieOverpopulation">
             </div>
-            <div class="col-md bg-dark">
-                <select class="form-select" aria-label="Default select example">
-                    <option selected>???</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
+
+            <div class="col-md text-bg-secondary slider">
+                <label for="bornReproduction" class="form-label text-light m-0 bornReproductionSlider">bornReproduction: 3 neighbors</label>
+                <input type="range" class="form-range" min="0" max="8" value="3" step="1" id="bornReproduction">
             </div>
         </div>
     </div>
@@ -113,13 +102,15 @@
     <script>
         let unitLength;
         let margin;
-        const boxColor = 200;
+        let boxColor = 200;
         const strokeColor = 50;
         let columns;
         let rows;
         let currentBoard;
         let nextBoard;
         let startGame;
+        let gametheme = 'dark';
+        let fr = 15;
 
         function setup() {
             CalCanvasWidth()
@@ -135,7 +126,7 @@
                 currentBoard[i] = [];
                 nextBoard[i] = []
             }
-            frameRate(15);
+            frameRate(fr);
             init(set);
         }
 
@@ -190,6 +181,8 @@
         function draw() {
             background(0);
             generate();
+
+
             let spectrumColor;
             let speeder = 1;
             for (let i = 0; i < columns; i++) {
@@ -202,7 +195,7 @@
                         // Math.abs(128 - ((frameCount + i - j) % 255)),
                     ];
                     if (currentBoard[i][j].count > 1) {
-                        fill(boxColor - currentBoard[i][j].count * 20);
+                        gametheme=='dark' ? fill(boxColor - currentBoard[i][j].count * 20) : fill(boxColor + currentBoard[i][j].count * 20)
                         } else if (currentBoard[i][j].life == 1) {
                             fill(boxColor)
                         } else {
@@ -222,6 +215,7 @@
         }
 
         function generate() {
+
             for (let x = 0; x < columns; x++) {
                 for (let y = 0; y < rows; y++) {
                     let neighbors = 0;
@@ -238,11 +232,11 @@
                     }
 
                     // Rules of Life
-                    if (currentBoard[x][y].life == 1 && neighbors < 2) {
+                    if (currentBoard[x][y].life == 1 && neighbors < dieLoneliness.value) {
                         nextBoard[x][y] = { life: 0, count: 0 };
-                        } else if (currentBoard[x][y].life == 1 && neighbors > 3) {
+                        } else if (currentBoard[x][y].life == 1 && neighbors > dieOverpopulation.value) {
                         nextBoard[x][y] = { life: 0, count: 0 };
-                        } else if (currentBoard[x][y].life == 0 && neighbors == 3) {
+                        } else if (currentBoard[x][y].life == 0 && neighbors == bornReproduction.value) {
                         nextBoard[x][y] = { life: 1, count: 0 };
                         } else if (currentBoard[x][y].life == 0) {
                         nextBoard[x][y] = { life: 0, count: 0 };
@@ -288,25 +282,73 @@
     <script>
         firstContainer = document.querySelector("firstContainer")
 
+        //button
         startButton = document.querySelector('#startButton').addEventListener('click', function(){loop()})
-
         pauseButton = document.querySelector('#pauseButton').addEventListener('click', function(){noLoop()})
-
         nextButton = document.querySelector('#nextButton').addEventListener('click', function(){noLoop();draw()})
-
         nextButton = document.querySelector('#resetButton').addEventListener('click', function(){init(set);loop()})
-
         nextButton = document.querySelector('#clearButton').addEventListener('click', function(){init(clear);loop()})
+        darkThemeButton = document.querySelector('#darkTheme').addEventListener('click', function(){switchTheme('dark')})
+        lightThemeButton = document.querySelector('#lightTheme').addEventListener('click', function(){switchTheme('light')})
+        buttonTheme = document.querySelectorAll('.theme')
+        
+        //rule
+        dieLoneliness = document.querySelector('#dieLoneliness')
+        dieOverpopulation = document.querySelector('#dieOverpopulation')
+        bornReproduction = document.querySelector('#bornReproduction')
+        dieLoneliness.addEventListener('click', function(){
+            document.querySelector('.dieLonelinessSlider').textContent = `dieLoneliness: ${dieLoneliness.value} neighbors`})
+        dieOverpopulation.addEventListener('click', function(){
+            document.querySelector('.dieOverpopulationSlider').textContent = `dieOverpopulation: ${dieOverpopulation.value} neighbors`})
+        bornReproduction.addEventListener('click', function(){
+            document.querySelector('.bornReproductionSlider').textContent = `bornReproduction: ${bornReproduction.value} neighbors`})
 
-        switchThemeButton = document.querySelector('#switchThemeButton')
+        wholeBody = document.querySelector('body')
+
+        //speed
+        speedSlider = document.querySelector("#speedSlider")
+        speedSlider.addEventListener('click', function(){changeFrameRate()})
+        function changeFrameRate() {
+            document.querySelector('.speedSlider').textContent = `Speed: ${speedSlider.value}fps`
+            fr = parseInt(speedSlider.value)
+            frameRate(fr)
+        }
+
+        function switchTheme(newTheme) {
+            gametheme = newTheme
+            sliders = document.querySelectorAll('label')
+            if (newTheme == 'dark') {
+                for (let button of buttonTheme) {
+                button.classList.replace('btn-primary','btn-secondary')
+            }
+                for (let slider of sliders) {
+                    slider.classList.replace('text-secondary','text-light')
+                }
+                boxColor = 200
+                wholeBody.classList.replace('bg-light','bg-dark')   
+            }
+            if (newTheme == 'light') {
+                for (let button of buttonTheme) {
+                button.classList.replace('btn-secondary','btn-primary')
+            }
+                for (let slider of sliders) {
+                    slider.classList.replace('text-light','text-secondary')
+            }
+                boxColor = 0
+                wholeBody.classList.replace('bg-dark','bg-light')
+            }
+        }
     </script>
     <script>
-        console.log(
+        if (gametheme === 'light') {
+            console.log(
             '%c使徒襲來','background-color: #c20f0f;color:#f58d39;padding:0.5rem 1rem;font-size:5rem;font-weight: 900;'
             );
         console.log(
             '%c消滅敵機進入第三東京市', 'background-color: #60289b;color:#b8e84c;padding:0.5rem;font-size:2rem;font-weight: 900;'
             );
+        }
+        
     </script>
 </body>
 

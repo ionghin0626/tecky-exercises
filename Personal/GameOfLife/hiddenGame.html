@@ -4541,7 +4541,7 @@ autoplay>
         ]
     ]
 ]
-
+        let angleLife;
 
         function setup() {
             CalCanvasWidth()
@@ -4597,11 +4597,11 @@ autoplay>
                     currentBoard[i][j] = { color: [0, 0, 0], life:0 };
                        nextBoard[i][j] = { color: [0, 0, 0], life:0 };
                     if (thirdAngle[i] !== undefined && thirdAngle[i][j] !== undefined) {
-                        currentBoard[i][j] = { color: thirdAngle[i][j], life: 1 };
-                        nextBoard[i][j] = { color: thirdAngle[i][j], life: 1 };
+                        currentBoard[i][j] = { color: [0, 0, 0],colorhide: thirdAngle[i][j], life: 1 };
+                        nextBoard[i][j] = { color: [0, 0, 0],colorhide: thirdAngle[i][j], life: 1 };
                     } else {
-                        currentBoard[i][j] = { color: [0, 0, 0], life:0 };
-                       nextBoard[i][j] = { color: [0, 0, 0], life:0 };
+                        currentBoard[i][j] = { color: [0, 0, 0], colorhide: [0, 0, 0],life:0 };
+                       nextBoard[i][j] = { color: [0, 0, 0], colorhide: [0, 0, 0],life:0 };
                     }
                 }
             }
@@ -4613,9 +4613,12 @@ autoplay>
         
         for (let i = 0; i < columns; i++) {
           for (let j = 0; j < rows; j++) {
-            fill(
-              currentBoard[i][j].color
-            );
+            if (currentBoard[i][j].life == 0) {
+                fill(currentBoard[i][j].color);
+            } else if (currentBoard[i][j].life == 1) {
+                fill(currentBoard[i][j].colorhide)
+            }
+
             stroke(strokeColor);
             rect(i * unitLength, j * unitLength, unitLength, unitLength);
           }
@@ -4623,7 +4626,6 @@ autoplay>
       }
 
       function generate() {
-
         for (let x = 0; x < columns; x++) {
           for (let y = 0; y < rows; y++) {
             let neighbors = { red: 0, green: 0, blue: 0 };
@@ -4632,55 +4634,54 @@ autoplay>
                 if (i == 0 && j == 0) {
                   continue;
                 }
-                if (currentBoard.life ==1) {
-                    continue;
-                }
                 nowBox =
                   currentBoard[(x + i + columns) % columns][
                     (y + j + rows) % rows
                   ];
-                if (nowBox.color[0] > 0 && currentBoard.life == 0) {
+                if (nowBox.color[0] == 255) {
                   neighbors.red++;
                 }
-                if (nowBox.color[1] > 0 && currentBoard.life == 0) {
+                if (nowBox.color[1] == 255) {
                   neighbors.green++;
                 }
-                if (nowBox.color[2] > 0 && currentBoard.life == 0) {
+                if (nowBox.color[2] == 255) {
                   neighbors.blue++;
                 }
               }
             }
-
             currentBox = currentBoard[x][y];
             nextBox = nextBoard[x][y];
             //red
-            if (currentBox.life == 1) {
-                continue;
-            }
-            if (currentBox.color[0] > 0 && neighbors.red < 2) {
-              nextBox.color[0] = nextBox.color[0] - 50;
-            } else if (currentBox.color[0] > 0 && neighbors.red > 3) {
-              nextBox.color[0] = nextBox.color[0] - 50;
+            if (currentBox.color[0] == 255 && neighbors.red < 2) {
+              nextBox.color[0] = 0;
+              if (currentBox.life == 1) {
+                nextBox.life = 0;
+              }
+            } else if (currentBox.color[0] == 255 && neighbors.red > 3) {
+              nextBox.color[0] = 0;
+              if (currentBox.life == 1) {
+                nextBox.life = 0;
+              }
             } else if (currentBox.color[0] == 0 && neighbors.red == 3) {
               nextBox.color[0] = 255;
             } else {
               nextBox.color[0] = currentBox.color[0];
             }
             //green
-            if (currentBox.color[1] > 0 && neighbors.green < 2) {
-              nextBox.color[1] = nextBox.color[1] - 50;
-            } else if (currentBox.color[1] > 0 && neighbors.green > 3) {
-              nextBox.color[1] = nextBox.color[1] - 50;
+            if (currentBox.color[1] == 255 && neighbors.green < 2) {
+              nextBox.color[1] = 0;
+            } else if (currentBox.color[1] == 255 && neighbors.green > 3) {
+              nextBox.color[1] = 0;
             } else if (currentBox.color[1] == 0 && neighbors.green == 3) {
               nextBox.color[1] = 255;
             } else {
               nextBox.color[1] = currentBox.color[1];
             }
             //blue
-            if (currentBox.color[2] > 0 && neighbors.blue < 2) {
-              nextBox.color[2] = nextBox.color[2] - 50;
-            } else if (currentBox.color[2] > 0 && neighbors.blue > 3) {
-              nextBox.color[2] = nextBox.color[2] - 50;
+            if (currentBox.color[2] == 255 && neighbors.blue < 2) {
+              nextBox.color[2] = 0;
+            } else if (currentBox.color[2] == 255 && neighbors.blue > 3) {
+              nextBox.color[2] = 0;
             } else if (currentBox.color[2] == 0 && neighbors.blue == 3) {
               nextBox.color[2] = 255;
             } else {
@@ -4688,7 +4689,9 @@ autoplay>
             }
           }
         }
+
         [currentBoard, nextBoard] = [nextBoard, currentBoard];
+
       }
 
       function randomColor() {

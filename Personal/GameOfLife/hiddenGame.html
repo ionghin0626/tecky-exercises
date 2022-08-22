@@ -4542,6 +4542,7 @@ autoplay>
     ]
 ]
         let angleLife;
+        let win = false;
 
         function setup() {
             CalCanvasWidth()
@@ -4626,6 +4627,7 @@ autoplay>
       }
 
       function generate() {
+        let angleLife = 0;
         for (let x = 0; x < columns; x++) {
           for (let y = 0; y < rows; y++) {
             let neighbors = { red: 0, green: 0, blue: 0 };
@@ -4655,11 +4657,13 @@ autoplay>
             if (currentBox.color[0] == 255 && neighbors.red < 2) {
               nextBox.color[0] = 0;
               if (currentBox.life == 1) {
+                currentBox.life = 0
                 nextBox.life = 0;
               }
             } else if (currentBox.color[0] == 255 && neighbors.red > 3) {
               nextBox.color[0] = 0;
               if (currentBox.life == 1) {
+                currentBox.life = 0
                 nextBox.life = 0;
               }
             } else if (currentBox.color[0] == 0 && neighbors.red == 3) {
@@ -4667,29 +4671,35 @@ autoplay>
             } else {
               nextBox.color[0] = currentBox.color[0];
             }
+
+            if (nextBox.life == 1) {
+                angleLife++
+            }
             //green
-            if (currentBox.color[1] == 255 && neighbors.green < 2) {
-              nextBox.color[1] = 0;
-            } else if (currentBox.color[1] == 255 && neighbors.green > 3) {
-              nextBox.color[1] = 0;
-            } else if (currentBox.color[1] == 0 && neighbors.green == 3) {
-              nextBox.color[1] = 255;
-            } else {
-              nextBox.color[1] = currentBox.color[1];
-            }
-            //blue
-            if (currentBox.color[2] == 255 && neighbors.blue < 2) {
-              nextBox.color[2] = 0;
-            } else if (currentBox.color[2] == 255 && neighbors.blue > 3) {
-              nextBox.color[2] = 0;
-            } else if (currentBox.color[2] == 0 && neighbors.blue == 3) {
-              nextBox.color[2] = 255;
-            } else {
-              nextBox.color[2] = currentBox.color[2];
-            }
+            // if (currentBox.color[1] == 255 && neighbors.green < 2) {
+            //   nextBox.color[1] = 0;
+            // } else if (currentBox.color[1] == 255 && neighbors.green > 3) {
+            //   nextBox.color[1] = 0;
+            // } else if (currentBox.color[1] == 0 && neighbors.green == 3) {
+            //   nextBox.color[1] = 255;
+            // } else {
+            //   nextBox.color[1] = currentBox.color[1];
+            // }
+            // //blue
+            // if (currentBox.color[2] == 255 && neighbors.blue < 2) {
+            //   nextBox.color[2] = 0;
+            // } else if (currentBox.color[2] == 255 && neighbors.blue > 3) {
+            //   nextBox.color[2] = 0;
+            // } else if (currentBox.color[2] == 0 && neighbors.blue == 3) {
+            //   nextBox.color[2] = 255;
+            // } else {
+            //   nextBox.color[2] = currentBox.color[2];
+            // }
           }
         }
-
+        if (angleLife = 0) {
+            win = true
+        }
         [currentBoard, nextBoard] = [nextBoard, currentBoard];
 
       }
